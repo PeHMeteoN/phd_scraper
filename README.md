@@ -1,2 +1,2 @@
 # ScrappingToolKit
-Web scrapping - LatinAmerica Meteo datasets
+Web scrapping
