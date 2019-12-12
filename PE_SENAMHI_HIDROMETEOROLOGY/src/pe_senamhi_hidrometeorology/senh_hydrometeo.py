@@ -108,9 +108,6 @@ _logger = logging.getLogger(__name__)
 #with open('senh_realtime.dictionary', 'wb') as config_dictionary_file:
 #pickle.dump(metadata_db, config_dictionary_file)
 
-show_message(station_code)
-help(show_message)
-
 def show_message(station_code, metadata_db="../../data/senh_realtime.dictionary"):
     '''Show metadata from the gauge station.
     (meteo_manual_realtime, meteo_manual_deferred, meteo_automatic, hidro_manual_realtime, hidro_manual_deferred)
