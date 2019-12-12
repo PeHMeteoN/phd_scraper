@@ -14,6 +14,9 @@ from setuptools import setup
 
 try:
     require('setuptools>=38.3')
+    require('numpy>=1.13.3')
+    require('pandas>=0.25.1')
+    require('bs4>=4.7.1')
 except VersionConflict:
     print("Error: version of setuptools is too old (<38.3)!")
     sys.exit(1)

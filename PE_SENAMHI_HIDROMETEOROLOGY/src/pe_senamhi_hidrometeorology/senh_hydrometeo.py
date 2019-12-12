@@ -97,7 +97,7 @@ from calendar import monthrange
 __version__ = '0.0.1'
 __author__ = "csaaybar & ryali"
 __copyright__ = "csaaybar & ryali"
-__license__ = "mit"
+__license__ = "GPL-3.0"
 
 _logger = logging.getLogger(__name__)
 
@@ -108,8 +108,17 @@ _logger = logging.getLogger(__name__)
 #with open('senh_realtime.dictionary', 'wb') as config_dictionary_file:
 #pickle.dump(metadata_db, config_dictionary_file)
 
+show_message(station_code)
+help(show_message)
 
-def show_message(station_code, metadata_db="../../data/senh_realtime.dictionary"):    
+def show_message(station_code, metadata_db="../../data/senh_realtime.dictionary"):
+    '''Show metadata from the gauge station.
+    (meteo_manual_realtime, meteo_manual_deferred, meteo_automatic, hidro_manual_realtime, hidro_manual_deferred)
+    Args:
+    -station_code: SENAMHI new code of the gauge station
+    -metadata_db: Pickle object (List that contains dictionaries); Represent the metadata of the entire network.
+    '''
+
     with open(metadata_db, 'rb') as config_dictionary_file: 
         metadata_db = pickle.load(config_dictionary_file)     
     #Search metadata for the station_code
@@ -122,6 +131,13 @@ def show_message(station_code, metadata_db="../../data/senh_realtime.dictionary"
     return 0
 
 def gaugestation_clasification(station_code,return_type=True, metadata_db="../../data/senh_realtime.dictionary"): 
+    '''Return the meteorological variables according to the gauge station class.
+    Args:
+    -station_code: Return the meteorological variables according to the gauge station class.
+    -return_type: Logical; Whether it is True the variables names are returned, but it is just returned the station class code.
+    -metadata_db: Pickle object (List that contains dictionaries); Represent the metadata of the entire network.
+    '''
+
     #Read metadata DB
     with open(metadata_db, 'rb') as config_dictionary_file: 
         metadata_db = pickle.load(config_dictionary_file) 
@@ -162,6 +178,13 @@ def gaugestation_clasification(station_code,return_type=True, metadata_db="../..
         return '%s_%s' % (var_01,var_02)
 
 def add_altitude(code, state, type_station, category_station, old_code=None):
+    '''Add altitude (to the metadata dictionary). This step is extremely necessary to make queries (.php?..).
+    Args:
+    -code: Station code (SENAMHI new code's format)
+    -state: METEOROLOGICA o HIDROLOGICA.
+    -type_station: DIFERIDO, REALTIME and AUTOMATICO.    
+    -old_code: Station code (SENAMHI old code's format)
+    '''    
     if state == "AUTOMATICA":
         url = "https://www.senamhi.gob.pe/mapas/mapa-estaciones-2/map_red_graf.php?cod={}&estado={}&tipo_esta={}&cate={}".format(code, state, type_station, category_station)
     else:
@@ -175,6 +198,12 @@ def add_altitude(code, state, type_station, category_station, old_code=None):
     return alt
 
 def data_senamhi_realtime(station, year_month, quiet=False):
+    ''' Transform SENAMHI HTML tables into pd.DataFrame.
+    Args:
+    -station: Metadata of the gauge station as a dictionary
+    -year_month: %Y%m Date format (it is SENAMHI format)
+    -quiet: Logical. Suppress info message.
+    '''
     cod = station["cod"]
     tipo_esta = station["ico"]
     estado = station["estado"]
@@ -215,6 +244,11 @@ def data_senamhi_realtime(station, year_month, quiet=False):
     return df
 
 def complete_monthly_data(station_data,station_class):
+    '''Complete missing dates with np.NaN.
+    Args:
+    - station_data: Station monthly data in pd.DataFrame format.
+    - station_class: String; Indicate the class of the gauge station.
+    '''
     match_arg = station_class.split('_')[-1]
     if match_arg == 'automatic':
         # Creating a complete time serie
@@ -260,13 +294,15 @@ def complete_monthly_data(station_data,station_class):
         raise Exception('station_class do not match with deferred, realtime or automatic')
 
 def download_data(station_code, date, completedata=True, specific=False, metadata_db="../../data/senh_realtime.dictionary", quiet=False):
-    '''Download month by month and station by station from senamhi real-time dataset
+    '''Download month by month and station by station the senamhi real-time dataset
        Args:
-        - station_code: station new code
-        - date: Date to download in the format %Y-%m-%d (e.g. 2019-01-10)
-        - specific: Logical; Whether is True (False) the specific day (month) will be downloaded.    
+        - station_code: station new code.
+        - date: Date to download in the format %Y-%m-%d (e.g. 2019-01-10).
+        - completedata: Logical; Whether it is True the missing dates will be completed with np.NaN.
+        - specific: Logical; Whether it is True (False) the specific day (month) will be downloaded.    
         - metadata_db: Pickle object (List that contains dictionaries); Represent the metadata of the entire network.
-    '''
+        - quiet: Logical. Suppress info message.
+    '''    
     #Read metadata DB
     with open(metadata_db, 'rb') as config_dictionary_file: 
         metadata_db = pickle.load(config_dictionary_file) 
@@ -318,6 +354,17 @@ def download_data(station_code, date, completedata=True, specific=False, metadat
     return total_df
 
 def download_data_range(station_code, init_date, last_date, completedata=True, specific=False, to_csv = None, metadata_db="../../data/senh_realtime.dictionary", quiet=False):
+    '''Download month by month and station by station the senamhi real-time dataset
+       Args:
+        - station_code: station new code.
+        - init_date: Init date to start to download. Use the format %Y-%m-%d (e.g. 2019-01-10).
+        - last_date: Last date to start to download. Use the format %Y-%m-%d (e.g. 2019-01-10).
+        - completedata: Logical; Whether it is True the missing dates will be completed with np.NaN.
+        - specific: Logical; Whether it is True (False) the specific day (month) will be downloaded.    
+        - to_csv: String; Output filename.
+        - metadata_db: Pickle object (List that contains dictionaries); Represent the metadata of the entire network.
+        - quiet: Logical. Suppress info message.
+    '''        
     seq_date = pd.date_range(start = init_date,
                              end = last_date,
                              freq = 'MS').tolist()
