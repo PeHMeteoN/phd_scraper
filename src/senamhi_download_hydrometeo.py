@@ -32,12 +32,12 @@ All functions created in this module are mentioned bellow.
 MODE OF USE
 ------------------------------------------------------------
 SIMPLE USERS:
-    $ cd ~/ScrappingToolKit/PE_SENAMHI_HIDROMETEOROLOGY/src/
+    $ cd ~/ScrappingToolKit/src/
     $ python3 senh_hydrometeo.py --station_code 100090 --init_date 2019-01-01 --last_date 2019-02-02
 ADVANCED USERS:
     $ cd ~/ScrappingToolKit/PE_SENAMHI_HIDROMETEOROLOGY/src/
     $ python3 senh_hydrometeo.py --station_code 100090 --init_date 2019-01-01 --last_date 2019-02-02
-     --completedata False --quiet True --to_csv test.csv
+      --completedata False --quiet True --to_csv test.csv
 
 DISCLAIMER (Adapted from: https://github.com/ConorIA/senamhiR)
 ------------------------------------------------------------
@@ -91,6 +91,7 @@ from datetime import datetime
 import pickle
 import numpy as np
 import pandas as pd
+
 from bs4 import BeautifulSoup
 from calendar import monthrange
 
@@ -108,7 +109,11 @@ _logger = logging.getLogger(__name__)
 #with open('senh_realtime.dictionary', 'wb') as config_dictionary_file:
 #pickle.dump(metadata_db, config_dictionary_file)
 
+<<<<<<< refs/remotes/PeHMeteoN/master:PE_SENAMHI_HIDROMETEOROLOGY/src/pe_senamhi_hidrometeorology/senh_hydrometeo.py
 def show_message(station_code, metadata_db="../../data/senh_realtime.dictionary"):
+=======
+def show_message(station_code, metadata_db="../data/pe_hydrometeorologicalsenh_realtime.dictionary"):
+>>>>>>> pypackages :3:src/senamhi_download_hydrometeo.py
     '''Show metadata from the gauge station.
     (meteo_manual_realtime, meteo_manual_deferred, meteo_automatic, hidro_manual_realtime, hidro_manual_deferred)
     Args:
@@ -127,7 +132,7 @@ def show_message(station_code, metadata_db="../../data/senh_realtime.dictionary"
     print(metadata_df)
     return 0
 
-def gaugestation_clasification(station_code,return_type=True, metadata_db="../../data/senh_realtime.dictionary"): 
+def gaugestation_clasification(station_code,return_type=True, metadata_db="../data/pe_hydrometeorological/senh_realtime.dictionary"): 
     '''Return the meteorological variables according to the gauge station class.
     Args:
     -station_code: Return the meteorological variables according to the gauge station class.
@@ -290,7 +295,7 @@ def complete_monthly_data(station_data,station_class):
     else:
         raise Exception('station_class do not match with deferred, realtime or automatic')
 
-def download_data(station_code, date, completedata=True, specific=False, metadata_db="../../data/senh_realtime.dictionary", quiet=False):
+def download_data(station_code, date, completedata=True, specific=False, metadata_db="../data/pe_hydrometeorological/senh_realtime.dictionary", quiet=False):
     '''Download month by month and station by station the senamhi real-time dataset
        Args:
         - station_code: station new code.
@@ -350,7 +355,7 @@ def download_data(station_code, date, completedata=True, specific=False, metadat
         total_df = total_df[total_df.DATE == date]
     return total_df
 
-def download_data_range(station_code, init_date, last_date, completedata=True, specific=False, to_csv = None, metadata_db="../../data/senh_realtime.dictionary", quiet=False):
+def download_data_range(station_code, init_date, last_date, completedata=True, specific=False, to_csv = None, metadata_db="../data/pe_hydrometeorological/senh_realtime.dictionary", quiet=False):
     '''Download month by month and station by station the senamhi real-time dataset
        Args:
         - station_code: station new code.
@@ -442,7 +447,7 @@ def parse_args(args):
         "--metadata_db",
         dest="metadata_db",
         help="Filedir: Dataset which contains metadata of gauge stations.",
-        default="../../data/senh_realtime.dictionary",
+        default="../data/senh_realtime.dictionary",
         type=str,
         metavar="str")
     parser.add_argument(
