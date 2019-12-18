@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 """HTML scraper from SENAMHI hidrometeorology data
 This Python module scrape the hydrometeorology SENAMHI webpage 
 (https://www.senamhi.gob.pe/mapas/mapa-estaciones-2/map_red_graf.php?). 
@@ -32,12 +32,23 @@ All functions created in this module are mentioned bellow.
 MODE OF USE
 ------------------------------------------------------------
 SIMPLE USERS:
-    $ cd ~/ScrappingToolKit/src/
-    $ python3 senh_hydrometeo.py --station_code 100090 --init_date 2019-01-01 --last_date 2019-02-02
+    $ cd ~/phd_scraper/phd_scraper/
+    $ python3 se_hydrometeo.py --station_code 100090 --init_date 2019-01-01 --last_date 2019-02-02
+
+    >>> from phd_scraper import se_hydrometeo
+    >>> se_hydrometeo.download(station_code=100090, init_date=2019-01-01, last_date=2019-02-02)
 ADVANCED USERS:
-    $ cd ~/ScrappingToolKit/PE_SENAMHI_HIDROMETEOROLOGY/src/
-    $ python3 senh_hydrometeo.py --station_code 100090 --init_date 2019-01-01 --last_date 2019-02-02
+    $ cd ~/phd_scraper/phd_scraper/
+    $ python3 se_hydrometeo.py --station_code 100090 --init_date 2019-01-01 --last_date 2019-02-02
       --completedata False --quiet True --to_csv test.csv
+
+    >>> from phd_scraper import se_historic
+    >>> se_historic(station_code=100090,
+                    init_date=2019-01-01,
+                    last_date=2019-02-02,
+                    completedata=False,
+                    quiet=True,
+                    to_csv=test.csv)
 
 DISCLAIMER (Adapted from: https://github.com/ConorIA/senamhiR)
 ------------------------------------------------------------
@@ -95,25 +106,25 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from calendar import monthrange
 
-__version__ = '0.0.1'
-__author__ = "csaaybar & ryali"
+__version__ = '0.1.0'
+__author__ = "csaybar & ryali"
 __copyright__ = "csaaybar & ryali"
 __license__ = "GPL-3.0"
-
 _logger = logging.getLogger(__name__)
 
 
+if len(os.path.dirname(__file__)) == 0:
+    __datadir__ = 'se_hydrometeo.dictionary'
+else:
+    __datadir__ = '%s/se_hydrometeo.dictionary' % os.path.dirname(__file__)
+
 ## Create a pickle
-#metadata_db = 'https://raw.githubusercontent.com/PeHMeteoN/ScrappingToolKit/master/PE_SENAMHI_HIDROMETEOROLOGY/senh_hist.json'    
+#metadata_db = '~/senh_hist.json'    
 #metadata_db = json.loads(requests.get(metadata_db).text)
 #with open('senh_realtime.dictionary', 'wb') as config_dictionary_file:
 #pickle.dump(metadata_db, config_dictionary_file)
 
-<<<<<<< refs/remotes/PeHMeteoN/master:PE_SENAMHI_HIDROMETEOROLOGY/src/pe_senamhi_hidrometeorology/senh_hydrometeo.py
-def show_message(station_code, metadata_db="../../data/senh_realtime.dictionary"):
-=======
-def show_message(station_code, metadata_db="../data/pe_hydrometeorologicalsenh_realtime.dictionary"):
->>>>>>> pypackages :3:src/senamhi_download_hydrometeo.py
+def show_message(station_code, metadata_db=__datadir__):
     '''Show metadata from the gauge station.
     (meteo_manual_realtime, meteo_manual_deferred, meteo_automatic, hidro_manual_realtime, hidro_manual_deferred)
     Args:
@@ -132,7 +143,7 @@ def show_message(station_code, metadata_db="../data/pe_hydrometeorologicalsenh_r
     print(metadata_df)
     return 0
 
-def gaugestation_clasification(station_code,return_type=True, metadata_db="../data/pe_hydrometeorological/senh_realtime.dictionary"): 
+def gaugestation_clasification(station_code, return_type=True, metadata_db=__datadir__): 
     '''Return the meteorological variables according to the gauge station class.
     Args:
     -station_code: Return the meteorological variables according to the gauge station class.
@@ -295,7 +306,7 @@ def complete_monthly_data(station_data,station_class):
     else:
         raise Exception('station_class do not match with deferred, realtime or automatic')
 
-def download_data(station_code, date, completedata=True, specific=False, metadata_db="../data/pe_hydrometeorological/senh_realtime.dictionary", quiet=False):
+def download_one_month(station_code, date, completedata=True, specific=False, quiet=False, metadata_db=__datadir__):
     '''Download month by month and station by station the senamhi real-time dataset
        Args:
         - station_code: station new code.
@@ -355,8 +366,8 @@ def download_data(station_code, date, completedata=True, specific=False, metadat
         total_df = total_df[total_df.DATE == date]
     return total_df
 
-def download_data_range(station_code, init_date, last_date, completedata=True, specific=False, to_csv = None, metadata_db="../data/pe_hydrometeorological/senh_realtime.dictionary", quiet=False):
-    '''Download month by month and station by station the senamhi real-time dataset
+def download(station_code, init_date, last_date, completedata=True, specific=False, to_csv = None, quiet=False, metadata_db=__datadir__):
+    '''Download by time range
        Args:
         - station_code: station new code.
         - init_date: Init date to start to download. Use the format %Y-%m-%d (e.g. 2019-01-10).
@@ -381,14 +392,14 @@ def download_data_range(station_code, init_date, last_date, completedata=True, s
     station_data_complete = pd.DataFrame({})
     for month in range_date:
         print('Processing: ' + month)
-        station_data = download_data(station_code = station_code,date = month, quiet=quiet, completedata=completedata,specific=specific)        
+        station_data = download_one_month(station_code = station_code,date = month, quiet=quiet, completedata=completedata,specific=specific)        
         station_data_complete = pd.concat([station_data_complete,station_data]).reset_index(drop = True)            
     
     if to_csv is not None:
         station_data_complete.to_csv(to_csv, index=False)
     else:
         print(station_data_complete)
-        #return station_data_complete
+        return station_data_complete
         
 def parse_args(args):
     """Parse command line parameters
@@ -493,7 +504,7 @@ def main(args):
     args = parse_args(args)
     setup_logging(args.loglevel)
     _logger.debug("Starting download...")    
-    download_data_range(args.station_code,args.init_date, args.last_date, args.completedata, 
+    download(args.station_code,args.init_date, args.last_date, args.completedata, 
                         args.specific, args.to_csv, args.metadata_db, args.quiet)
     _logger.info("Script ends here")
 

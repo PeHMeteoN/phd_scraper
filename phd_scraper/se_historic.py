@@ -22,8 +22,11 @@ All functions created in this module are mentioned bellow.
 
 MODE OF USE
 ------------------------------------------------------------
-    $ cd ~/ScrappingToolKit/src/
-    $ python3 senamhi_download_historic.py --station_code 152204 --outfile cesar.csv
+    $ cd ~/phd_scraper/phd_scraper/
+    $ python3 se_historic.py --station_code 152204 --outfile cesar.csv
+    
+    >>> from phd_scraper import se_historic
+    >>> se_historic.download(code='152204')
 
 DISCLAIMER (Adapted from: https://github.com/ConorIA/senamhiR)
 ------------------------------------------------------------
@@ -101,7 +104,7 @@ def generate_date(df, field_dates):
     df[field_dates] = dates
     return df    
 
-def download_senamhi_historic(code=157317,  output="./test.csv"):
+def download(code=157317,  output="./test.csv"):
     """ Download station by station considering the station code
         code: Station code (saved as a *.json)
     """
@@ -159,7 +162,7 @@ def download_senamhi_historic(code=157317,  output="./test.csv"):
 
     data_station = generate_date(pd.DataFrame(dicc_station), 'DATE')    
     data_station.to_csv(output, index=False)
-    return 0
+    return True
 
 def main(arguments):
     parser = argparse.ArgumentParser(description=__doc__,
@@ -169,7 +172,7 @@ def main(arguments):
     parser.add_argument('-o', '--outfile', help='Output file',
                         default=sys.stdout)
     args = parser.parse_args(arguments)    
-    download_senamhi_historic(code=args.station_code,output=args.outfile)
+    download(code=args.station_code,output=args.outfile)
     
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
