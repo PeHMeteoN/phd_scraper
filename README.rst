@@ -1,9 +1,44 @@
-phd_scraper
+|Python 3.6| |PyPI version|
+
+phd\_scraper
 ============
 
-A python module to scrape historic and real-time SENAMHI dataset.
-
 Description
-------------
+-----------
 
-This project offers a complete module (phd_scraper) which makes download daily and hourly meteorological data unpainless!
+This package offers a complete module that makes download daily and
+hourly LatinAmerica Hydrometeorological datasets unpainless.
+
+Mode of use
+-----------
+
+SENAMHI - `hydrometeorological <https://www.senamhi.gob.pe/mapas/mapa-estaciones-2/>`__
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    $ cd ~/phd_scraper/phd_scraper/
+    $ python3 se_hydrometeo.py --station_code 100090 --init_date 2019-01-01 --last_date 2019-02-02
+
+::
+
+    from phd_scraper import se_hydrometeo
+    se_hydrometeo.download(station_code=100090, init_date=2019-01-01, last_date=2019-02-02)
+
+SENAMHI - `historic <https://web2.senamhi.gob.pe/descarga/?cod=152204>`__
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    $ cd ~/phd_scraper/phd_scraper/
+    $ python3 se_historic.py --station_code 152204 --outfile test.csv
+
+::
+
+    from phd_scraper import se_historic
+    se_historic.download(code='152204')
+
+.. |Python 3.6| image:: https://img.shields.io/badge/python-3.6-blue.svg
+   :target: https://www.python.org/downloads/release/python-360/
+.. |PyPI version| image:: https://badge.fury.io/py/phd-scraper.svg
+   :target: https://pypi.org/project/phd-scraper/
