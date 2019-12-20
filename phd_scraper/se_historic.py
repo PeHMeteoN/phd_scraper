@@ -1,13 +1,13 @@
 #!/usr/bin/python
 """HTML scraper from SENAMHI historic data
 This Python module scrape the Historic SENAMHI webpage
-(https://web2.senamhi.gob.pe/descarga/?cod={}). 
-SENAMHI historic data considerated one format :
+(https://web2.senamhi.gob.pe/descarga/?cod={}).
+SENAMHI historic data considerated one format:
 
-    SENAMHI_historic_data :['DATE','PREC','TX','TN']
+  SENAMHI_historic_data :['DATE','PREC','TX','TN']
 
-Users need considerated that the entire dataset do not present control quality. The use of 
-this data will be the sole responsibility of the user (See SENAMHI TERMS OF USE).
+Users need consideration that the entire dataset do not present control quality. 
+The use of this data will be the sole responsibility of the user (See SENAMHI TERMS OF USE).
 
 FUNCTIONS
 ------------------------------------------------------------
@@ -76,6 +76,7 @@ import argparse
 
 from bs4 import BeautifulSoup
 import pandas as pd
+import numpy as np
 
 def generate_date(df, field_dates):
     """ Function for generate dates considering the last day of the year
@@ -104,12 +105,13 @@ def generate_date(df, field_dates):
     df[field_dates] = dates
     return df    
 
-def download(code=157317,  output="./test.csv"):
+def download(station_code, to_csv = None):
     """ Download station by station considering the station code
-        code: Station code (saved as a *.json)
+        - station_code: Station code
+        - to_csv: String; Output filename.
     """
     response = \
-        requests.get('https://web2.senamhi.gob.pe/descarga/?cod={}'.format(code))
+        requests.get('https://web2.senamhi.gob.pe/descarga/?cod={}'.format(station_code))
     soup = BeautifulSoup(response.text, 'html.parser')
     highcharts_header = [s.text for s in soup.find_all('script',
                          {'type': 'text/javascript'})]
@@ -159,20 +161,22 @@ def download(code=157317,  output="./test.csv"):
         'TX': tmax_values,
         'TN': tmin_values,
         }
-
-    data_station = generate_date(pd.DataFrame(dicc_station), 'DATE')    
-    data_station.to_csv(output, index=False)
-    return True
+    
+    data_station = generate_date(pd.DataFrame(dicc_station), 'DATE')  
+    data_station.replace(to_replace=[None], value=np.nan, inplace=True)
+    if to_csv is not None:
+        data_station.to_csv(to_csv, index=False)
+    return data_station
 
 def main(arguments):
     parser = argparse.ArgumentParser(description=__doc__,
             formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('-s', '--station_code', help='Output file',
                             default=sys.stdout)
-    parser.add_argument('-o', '--outfile', help='Output file',
+    parser.add_argument('-o', '--to_csv', help='Output file',
                         default=sys.stdout)
     args = parser.parse_args(arguments)    
-    download(code=args.station_code,output=args.outfile)
+    download(station_code=args.station_code,to_csv=args.outfile)
     
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))

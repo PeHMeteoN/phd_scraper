@@ -18,8 +18,8 @@ setup_requirements = [ ]
 test_requirements = [ ]
 
 setup(
-    author="Cesar Aybar",
-    author_email='csaybar@gmail.com',
+    author="Cesar Aybar, Roy Yali, Antony Barja, Julio Contreras",
+    author_email='csaybar@gmail.com, ryali93@gmail.com, antony.barja8@gmail.com, julius013199@gmail.com',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
@@ -45,6 +45,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/csaybar/phd_scraper',
-    version='0.1.2',
+    version='0.1.3',
     zip_safe=False,
 )

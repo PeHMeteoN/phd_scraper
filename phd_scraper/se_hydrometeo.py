@@ -2,8 +2,8 @@
 """HTML scraper from SENAMHI hidrometeorology data
 This Python module scrape the hydrometeorology SENAMHI webpage 
 (https://www.senamhi.gob.pe/mapas/mapa-estaciones-2/map_red_graf.php?). 
-SENAMHI considerated five different gauge station classes with the 
-following variables:
+SENAMHI contemplate five different gauge station classes with the following
+variables:
 
     - 'meteo_manual_realtime':['DATE','TX','TN','HUM','PREC_D'],
     - 'meteo_manual_deferred':['DATE','TX','TN','HUM','PREC_D'],
@@ -11,23 +11,23 @@ following variables:
     - 'hidro_manual_realtime':['DATE','LEVEL_06','LEVEL_10','LEVEL_14','LEVEL_18'],
     - 'hidro_manual_deferred':['DATE','HOUR','LEVEL','PREC_H']
 
-Users need considerated that the entire dataset do not present control quality. The use of 
-this data will be the sole responsibility of the user (See SENAMHI TERMS OF USE).
+Users need to regard that the entire dataset does not present control quality.
+The use of this data will be the sole responsibility of the user (See SENAMHI TERMS OF USE).
 
 FUNCTIONS
 ------------------------------------------------------------
-*download_data_range* is the main function. It permits you to download gauge meteorological data 
+**.se_hydrometeo.download** is the main function. It permits you to download gauge meteorological data 
 just specifying the station code and a date interval. See more details in help(download_data_range).
 All functions created in this module are mentioned bellow.
     AUXILIARY:
-        show_message: Show metadata from the gauge station.
-        gaugestation_clasification: Return the meteorological variables according to the gauge station class.
-        add_altitude: Add altitude (to the metadata dictionary). This step is extremely necessary to make queries (.php?..).
-        data_senamhi_realtime: Transform SENAMHI HTML tables into pd.DataFrame.
-        complete_monthly_data: Complete missing dates with np.NaN.
-        download_data: Save SENAMHI HTML as a .CSV format.
+        - show_message: Show metadata from the gauge station.
+        - gaugestation_clasification: Return the meteorological variables according to the gauge station class.
+        - add_altitude: Add altitude (to the metadata dictionary). This step is extremely necessary to make queries (.php?..).
+        - data_senamhi_realtime: Transform SENAMHI HTML tables into pd.DataFrame.
+        - complete_monthly_data: Complete missing dates with np.NaN.
+        - download_data: Save SENAMHI HTML as a .CSV format.
     MAIN:
-        download_data_range: Save SENAMHI HTML as a .CSV format considering a date interval.
+        download: Save SENAMHI HTML as a .CSV format considering a date interval.
 
 MODE OF USE
 ------------------------------------------------------------
@@ -36,19 +36,20 @@ SIMPLE USERS:
     $ python3 se_hydrometeo.py --station_code 100090 --init_date 2019-01-01 --last_date 2019-02-02
 
     >>> from phd_scraper import se_hydrometeo
-    >>> se_hydrometeo.download(station_code=100090, init_date=2019-01-01, last_date=2019-02-02)
+    >>> se_hydrometeo.download(station_code='100090', init_date='2019-01-01', last_date='2019-02-02')
+
 ADVANCED USERS:
     $ cd ~/phd_scraper/phd_scraper/
     $ python3 se_hydrometeo.py --station_code 100090 --init_date 2019-01-01 --last_date 2019-02-02
       --completedata False --quiet True --to_csv test.csv
 
-    >>> from phd_scraper import se_historic
-    >>> se_historic(station_code=100090,
-                    init_date=2019-01-01,
-                    last_date=2019-02-02,
-                    completedata=False,
-                    quiet=True,
-                    to_csv=test.csv)
+    >>> from phd_scraper import se_hydrometeo
+    >>> se_hydrometeo.download(station_code='100090',
+                               init_date='2019-01-01',
+                               last_date='2019-02-02',
+                               completedata=False,
+                               quiet=True,
+                               to_csv='test.csv')
 
 DISCLAIMER (Adapted from: https://github.com/ConorIA/senamhiR)
 ------------------------------------------------------------
@@ -106,10 +107,11 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from calendar import monthrange
 
-__version__ = '0.1.0'
+__version__ = '0.1.3'
 __author__ = "csaybar & ryali"
-__copyright__ = "csaaybar & ryali"
+__copyright__ = "csaybar & ryali"
 __license__ = "GPL-3.0"
+
 _logger = logging.getLogger(__name__)
 
 
@@ -366,15 +368,15 @@ def download_one_month(station_code, date, completedata=True, specific=False, qu
         total_df = total_df[total_df.DATE == date]
     return total_df
 
-def download(station_code, init_date, last_date, completedata=True, specific=False, to_csv = None, quiet=False, metadata_db=__datadir__):
-    '''Download by time range
+def download(station_code, init_date, last_date, to_csv = None, completedata=True, specific=False, quiet=False, metadata_db=__datadir__):
+    '''Download SENAMHI hydrometeorology data by time range
        Args:
-        - station_code: station new code.
+        - station_code: station new_code.
         - init_date: Init date to start to download. Use the format %Y-%m-%d (e.g. 2019-01-10).
         - last_date: Last date to start to download. Use the format %Y-%m-%d (e.g. 2019-01-10).
-        - completedata: Logical; Whether it is True the missing dates will be completed with np.NaN.
-        - specific: Logical; Whether it is True (False) the specific day (month) will be downloaded.    
         - to_csv: String; Output filename.
+        - completedata: Logical; Whether it is True the missing dates will be completed with np.NaN.
+        - specific: Logical; Whether it is True (False) the specific day (month) will be downloaded.            
         - metadata_db: Pickle object (List that contains dictionaries); Represent the metadata of the entire network.
         - quiet: Logical. Suppress info message.
     '''        
@@ -458,7 +460,7 @@ def parse_args(args):
         "--metadata_db",
         dest="metadata_db",
         help="Filedir: Dataset which contains metadata of gauge stations.",
-        default="../data/senh_realtime.dictionary",
+        default=__datadir__,
         type=str,
         metavar="str")
     parser.add_argument(
@@ -512,7 +514,6 @@ def run():
     """Entry point for console_scripts
     """    
     main(sys.argv[1:])
-
 
 if __name__ == "__main__":
     run()
